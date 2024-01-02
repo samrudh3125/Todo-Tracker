@@ -1,71 +1,56 @@
 const express=require("express")
 const app=express()
 const cors=require("cors")
-//const mongoose=require("mongoose");
-var ID=1;
+const mongoose=require("mongoose");
 
-//mongoose.connect("your database url here");
+mongoose.connect("your database link");
 
-/*const TaskSchema=new mongoose.Schema({
+const TaskSchema=new mongoose.Schema({
     title: String,
-    description: String,
+    time: String,
     reminder: Boolean
 })
-const task=mongoose.model('Tasks',TaskSchema);*/
+const Tasks=mongoose.model('Tasks',TaskSchema);
 
 app.use(cors())
-
-var arr=[{
-    id:0,
-    title:"Assignments",
-    time:"1st Jan at 5:00pm",
-    reminder:"true"
-}]
-app.get("/tasks",function(req,res){
-    //const tasks=Tasks.find({})
-    res.send(arr);
+app.get("/tasks",async function(req,res){
+    const tasks=await Tasks.find()
+    res.json(tasks);
 })
 
 app.post("/tasks",async function(req,res){
     const title=req.headers.title
     const time=req.headers.time
     const reminder=req.headers.reminder
-    /*const task=Tasks.create({
-        title,
-        time,
-        reminder
-    })*/
-    arr.push({
-        id:ID,
+    const task=await Tasks.create({
         title,
         time,
         reminder
     })
-    ID++;
-    res.json(arr)
+    const tasks=await Tasks.find()
+    res.json(tasks)
 })
 
-app.put("/tasks",function(req,res){
-    const id=req.headers.id
-    for(let i=0;i<arr.length;i++){
-        if(arr[i].id===id){
-            if(arr[i].reminder==="false"){
-                arr[i].reminder="true";
-            }
-            else{
-                arr[i].reminder="false";
-            }
-            break
-        }
-    }
-    res.json(arr)
+app.put("/tasks", async function (req, res) {
+        const id = req.header('id');
+        const task = await Tasks.findOne({
+            _id:id
+        })
+        task.reminder = !task.reminder;
+        await task.save();
 
-})
+        const tasks = await Tasks.find();
+        res.json(tasks);})
 
-app.delete("/tasks",function(req,res){
-    const id=req.headers.id
-    arr=arr.filter((task)=>task.id!=id)
-    res.json(arr)
-})
+app.delete("/tasks", async function (req, res) {
+        const id= req.header('id');
+        const task = await Tasks.deleteOne({
+            _id:id
+        });
+
+        const tasks = await Tasks.find();
+        res.json(tasks);
+    })
+
 
 app.listen(3000)

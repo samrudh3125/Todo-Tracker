@@ -38,7 +38,7 @@ function App() {
   }
 
   const setReminder=async(id)=>{
-    const response=await fetch(`http://localhost:3000/tasks`,{
+    const response=await fetch("http://localhost:3000/tasks",{
       method:'PUT',
       headers:{
         id:id
@@ -49,7 +49,7 @@ function App() {
   }
 
   const deleteTask=async(id)=>{
-    const response=await fetch(`http://localhost:3000/tasks`,{
+    const response=await fetch("http://localhost:3000/tasks",{
       method:'DELETE',
       headers:{
         id:id
